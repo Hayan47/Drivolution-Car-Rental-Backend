@@ -7,12 +7,38 @@ from django.conf import settings
 import os
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, JSONParser
+import json
 
 
 class CarViewSet(viewsets.ModelViewSet):
     queryset = Car.objects.all()
     serializer_class = CarSerializer
+    parser_classes = [MultiPartParser, JSONParser]
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def create(self, request, *args, **kwargs):
+        # Parse the JSON data from the 'data' field
+        car_data = json.loads(request.data['data'])
+
+        # Get image files and their primary status
+        images_data = []
+        for key in request.FILES:
+            if key.startswith('images['):
+                index = int(key.split('[')[1].split(']')[0])
+                images_data.append({
+                    'image': request.FILES[key],
+                    'is_primary': request.data.get(f'images[{index}]is_primary') == 'true'
+                })
+
+        # Add images to the data
+        car_data['images'] = images_data
+
+        serializer = self.get_serializer(data=car_data)
+        if serializer.is_valid():
+            self.perform_create(serializer)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -24,6 +50,11 @@ class CarViewSet(viewsets.ModelViewSet):
         available = self.request.query_params.get('available', None)
         if available is not None:
             queryset = queryset.filter(is_available=available.lower() == 'true')
+
+        # Filter by name
+        name = self.request.query_params.get('name', None)
+        if name is not None:
+            queryset = queryset.filter(name__icontains=name)
 
         # Filter by location
         location = self.request.query_params.get('location', None)

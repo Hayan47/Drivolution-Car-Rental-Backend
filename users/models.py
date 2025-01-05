@@ -8,7 +8,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=15)
     profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
-    date_of_birth = models.DateField(null=True)
+    date_of_birth = models.DateField(null=True, blank=True)
     # driving_license = models.CharField(max_length=50)
     is_verified = models.BooleanField(default=False)
     favorite_cars = models.ManyToManyField('cars.Car', related_name='favorite_by', blank=True)

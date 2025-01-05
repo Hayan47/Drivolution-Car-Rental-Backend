@@ -24,6 +24,8 @@ class ReservationViewSet(viewsets.ModelViewSet):
         if renter_id is not None:
             queryset = queryset.filter(renter=renter_id)
 
+        return queryset
+
     def perform_create(self, serializer):
         car = serializer.validated_data['car']
         start_date = serializer.validated_data['start_date']

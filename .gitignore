@@ -17,6 +17,7 @@ production.env
 # Media and static files
 car_images/
 car_logos/
+profile_pictures/
 
 # IDEs and Editors
 .idea/
