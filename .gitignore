@@ -40,3 +40,9 @@ node_modules/
 *.manifest
 *.spec
 *.iml
+
+# Docker
+docker-compose.override.yml
+
+# Nginx
+nginx/*.log

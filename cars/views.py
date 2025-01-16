@@ -1,13 +1,14 @@
 from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
-from rest_framework.response import Response
-from .models import Car, CarImage
-from .serializers import CarSerializer, CarImageSerializer
-from django.conf import settings
-import os
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, JSONParser
+from .models import Car
+from .serializers import CarSerializer
+from django.conf import settings
+import os
 import json
 
 
@@ -16,6 +17,10 @@ class CarViewSet(viewsets.ModelViewSet):
     serializer_class = CarSerializer
     parser_classes = [MultiPartParser, JSONParser]
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    # @method_decorator(cache_page(60 * 60 * 2, key_prefix='cars_list'))
+    # def list(self, request, *args, **kwargs):
+    #     return super().list(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
         # Parse the JSON data from the 'data' field
@@ -85,8 +90,8 @@ class StaticCarLogoListAPIView(APIView):
         logos_path = os.path.join(settings.MEDIA_ROOT, 'car_logos')
         logos = [
 
-            # request.build_absolute_uri(f"{settings.MEDIA_URL}car_logos/{file}")
-            request.build_absolute_uri(f"http://192.168.163.77:8000/car_logos/{file}")
+            request.build_absolute_uri(f"{settings.MEDIA_URL}car_logos/{file}")
+            # request.build_absolute_uri(f"http://192.168.163.77:8000/car_logos/{file}")
 
             for file in os.listdir(logos_path)
             if os.path.isfile(os.path.join(logos_path, file))

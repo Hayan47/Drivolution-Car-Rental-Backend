@@ -89,7 +89,7 @@ class UserViewSet(viewsets.ModelViewSet):
     def favorite_cars(self, request, pk=None):
         user = self.get_object()
         cars = user.favorite_cars.all()
-        serializer = CarSerializer(cars, many=True)
+        serializer = CarSerializer(cars, many=True, context={'request': request})
         return Response(serializer.data)
 
 

@@ -2,18 +2,18 @@ from .base import *
 import os
 
 DEBUG = True
-SECRET_KEY = config('SECRET_KEY', default='your-secret-key-for-development')
+SECRET_KEY = config('SECRET_KEY')
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME', default='car_rental_db'),
-        'USER': config('DB_USER', default='your_username'),
-        'PASSWORD': config('DB_PASSWORD', default='your_password'),
-        'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='5432'),
+        'NAME': 'drivolution',
+        'USER': 'postgres',
+        'PASSWORD': 'admin',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -38,3 +38,13 @@ LOGGING = {
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}

@@ -18,11 +18,11 @@ class CarImageSerializer(serializers.ModelSerializer):
 class CarSerializer(serializers.ModelSerializer):
     images = CarImageSerializer(many=True)
     location = LocationSerializer()
-    owner = serializers.PrimaryKeyRelatedField(read_only=True)
     features = serializers.ListField(
         child=serializers.CharField(max_length=255),
         required=False
     )
+    owner = serializers.SerializerMethodField()
 
     class Meta:
         model = Car
@@ -57,9 +57,14 @@ class CarSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({'location': 'Invalid JSON format'})
         return data
 
-    def to_representation(self, instance):
-        """Include full car details when serializing"""
+    # def to_representation(self, instance):
+    #     """Include full car details when serializing"""
+    #     from users.serializers import UserSerializer  # Import here to avoid circular import
+    #     ret = super().to_representation(instance)
+    #     ret['owner'] = UserSerializer(instance.owner).data
+    #     return ret
+
+    def get_owner(self, obj):
         from users.serializers import UserSerializer  # Import here to avoid circular import
-        ret = super().to_representation(instance)
-        ret['owner'] = UserSerializer(instance.owner).data
-        return ret
+        request = self.context.get('request')
+        return UserSerializer(obj.owner, context={'request': request}).data
