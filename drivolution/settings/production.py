@@ -16,7 +16,7 @@ DATABASES = {
         'PORT': config('DB_PORT'),
         'CONN_MAX_AGE': 60,
         'OPTIONS': {
-            'sslmode': 'require'
+            'sslmode': 'disable',  # Add this line
         }
     }
 }
@@ -75,3 +75,13 @@ STATIC_URL = '/static/'
 # Media files configuration
 MEDIA_ROOT = '/app/media'
 MEDIA_URL = '/media/'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://redis:6379/1',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}

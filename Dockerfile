@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
     python3-dev \
     musl-dev \
     libpq-dev \
+    netcat-traditional \
     && rm -rf /var/lib/apt/lists/
 
 # Install Python dependencies
@@ -25,10 +26,14 @@ COPY . .
 # Create directory for media files
 RUN mkdir -p /app/media /app/static
 
+# copying the project files but before the user switch
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh
+
 # Create a non-root user and set permissions
 RUN useradd -m appuser && \
     chown -R appuser:appuser /app
 USER appuser
 
 # Command to run the application
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "drivolution.wsgi:application"]
+ENTRYPOINT ["./entrypoint.sh"]
