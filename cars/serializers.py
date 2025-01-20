@@ -57,13 +57,6 @@ class CarSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({'location': 'Invalid JSON format'})
         return data
 
-    # def to_representation(self, instance):
-    #     """Include full car details when serializing"""
-    #     from users.serializers import UserSerializer  # Import here to avoid circular import
-    #     ret = super().to_representation(instance)
-    #     ret['owner'] = UserSerializer(instance.owner).data
-    #     return ret
-
     def get_owner(self, obj):
         from users.serializers import UserSerializer  # Import here to avoid circular import
         request = self.context.get('request')

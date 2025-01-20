@@ -17,6 +17,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'drf_spectacular',
     'rest_framework_simplejwt.token_blacklist',
+    'silk',
 
     # Local apps
     "users.apps.UsersConfig",
@@ -33,6 +34,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'silk.middleware.SilkyMiddleware',
 ]
 
 TEMPLATES = [

@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
@@ -62,12 +63,9 @@ class UserViewSet(viewsets.ModelViewSet):
     def add_favorite_car(self, request, pk=None):
         user = self.get_object()
         car_id = request.data.get('car_id')
-        try:
-            car = Car.objects.get(id=car_id)
-            user.favorite_cars.add(car)
-            return Response({"message": "Car added to favorites"}, status=status.HTTP_200_OK)
-        except Car.DoesNotExist:
-            return Response({"error": "Car not found"}, status=status.HTTP_404_NOT_FOUND)
+        car = get_object_or_404(Car, id=car_id)
+        user.favorite_cars.add(car)
+        return Response({"message": "Car added to favorites"}, status=status.HTTP_200_OK)
 
     @extend_schema(
         request=FavoriteCarRequestSerializer,
@@ -77,18 +75,15 @@ class UserViewSet(viewsets.ModelViewSet):
     def remove_favorite_car(self, request, pk=None):
         user = self.get_object()
         car_id = request.data.get('car_id')
-        try:
-            car = Car.objects.get(id=car_id)
-            user.favorite_cars.remove(car)
-            return Response({"message": "Car removed from favorites"}, status=status.HTTP_200_OK)
-        except Car.DoesNotExist:
-            return Response({"error": "Car not found"}, status=status.HTTP_404_NOT_FOUND)
+        car = get_object_or_404(Car, id=car_id)
+        user.favorite_cars.remove(car)
+        return Response({"message": "Car removed from favorites"}, status=status.HTTP_200_OK)
 
     @extend_schema(responses={200: CarSerializer(many=True)})
     @action(detail=True, methods=['get'])
     def favorite_cars(self, request, pk=None):
         user = self.get_object()
-        cars = user.favorite_cars.all()
+        cars = user.favorite_cars.select_related('owner', 'location').prefetch_related('images')
         serializer = CarSerializer(cars, many=True, context={'request': request})
         return Response(serializer.data)
 

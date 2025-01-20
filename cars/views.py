@@ -18,9 +18,9 @@ class CarViewSet(viewsets.ModelViewSet):
     parser_classes = [MultiPartParser, JSONParser]
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-    # @method_decorator(cache_page(60 * 60 * 2, key_prefix='cars_list'))
-    # def list(self, request, *args, **kwargs):
-    #     return super().list(request, *args, **kwargs)
+    @method_decorator(cache_page(60 * 60 * 2, key_prefix='cars_list'))
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
         # Parse the JSON data from the 'data' field
@@ -49,7 +49,7 @@ class CarViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
     def get_queryset(self):
-        queryset = Car.objects.all()
+        queryset = Car.objects.select_related('location', 'owner').prefetch_related('images')
 
         # Filter by availability
         available = self.request.query_params.get('available', None)
@@ -78,7 +78,7 @@ class CarViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
     def my_cars(self, request):
-        cars = Car.objects.filter(owner=request.user)
+        cars = request.user.owned_cars.select_related('location').prefetch_related('images')
         serializer = self.get_serializer(cars, many=True)
         return Response(serializer.data)
 
